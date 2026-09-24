@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>蔡炜晗 · 个人主页</title>
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+  :root{
+    --text-primary:#f5eedc;
+    --text-secondary:rgba(245,238,220,0.75);
+    --text-muted:rgba(245,238,220,0.45);
+    --gold:#c9a348;
+    --gold-dim:rgba(201,163,72,0.55);
+    --gold-line:rgba(201,163,72,0.2);
+    --rose:#d4956b;
+    --rose-dim:rgba(212,149,107,0.6);
+    --dot:#e8b878;
+    --dot-glow:rgba(232,184,120,0.3);
+    --card-bg:rgba(22,16,40,0.7);
+    --card-border:rgba(201,163,72,0.1);
+    --card-hover:rgba(201,163,72,0.16);
+    --btn-bg:rgba(22,16,40,0.45);
+    --btn-border:rgba(245,238,220,0.18);
+  }
+
+  @keyframes scrollMouse{
+    0%,100%{top:4px;opacity:1}
+    50%{top:13px;opacity:0.15}
+  }
+  @keyframes breathe{
+    0%,100%{opacity:0.6;transform:scale(1)}
+    50%{opacity:1;transform:scale(1.06)}
+  }
+  @keyframes loadStarFloat{
+    0%,100%{opacity:0;transform:translate(0,0) scale(0)}
+    20%{opacity:1;transform:translate(var(--x),var(--y)) scale(1)}
+    80%{opacity:0.6}
+    100%{opacity:0;transform:translate(var(--x),var(--y)) scale(0.3)}
+  }
+  @keyframes loadingPulse{
+    0%,100%{opacity:0.5}
+    50%{opacity:1}
+  }
+  @keyframes runBody{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-6px)}
+  }
+  @keyframes runLegL{
+    0%,100%{transform:rotate(-25deg)}
+    50%{transform:rotate(20deg)}
+  }
+  @keyframes runLegR{
+    0%,100%{transform:rotate(20deg)}
+    50%{transform:rotate(-25deg)}
+  }
+  @keyframes runArmL{
+    0%,100%{transform:rotate(15deg)}
+    50%{transform:rotate(-20deg)}
+  }
+  @keyframes runArmR{
+    0%,100%{transform:rotate(-20deg)}
+    50%{transform:rotate(15deg)}
+  }
+  @keyframes shadowScale{
+    0%,100%{transform:scaleX(1);opacity:0.3}
+    50%{transform:scaleX(0.65);opacity:0.12}
+  }
+  @keyframes tailWag{
+    0%,100%{transform:rotate(-8deg)}
+    50%{transform:rotate(12deg)}
+  }
+  @keyframes trailFade{
+    0%{opacity:0;transform:translateY(0) scale(0)}
+    30%{opacity:0.8}
+    100%{opacity:0;transform:translateY(-30px) scale(1)}
+  }
+
+  /* 加载画面 */
+  .loading-screen{
+    position:fixed;inset:0;z-index:100;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:
+      radial-gradient(ellipse 65% 50% at 30% 20%, #1e1840 0%, transparent 60%),
+      radial-gradient(ellipse 55% 55% at 75% 30%, #231545 0%, transparent 55%),
+      linear-gradient(175deg, #0d0a22 0%, #151030 30%, #1a1238 60%, #0f0d25 100%);
+    transition:opacity 0.6s ease,visibility 0.6s ease;
+    pointer-events:all;overflow:hidden;
+  }
+  .loading-screen.hidden{
+    opacity:0;visibility:hidden;pointer-events:none;
+  }
+
+  /* 奔跑场景 */
+  .run-scene{
+    position:relative;width:200px;height:140px;
+    display:flex;align-items:flex-end;justify-content:center;
+  }
+
+  /* SVG 跑步小女孩 */
+  .runner-svg{
+    display:block;
+    animation:runBody 0.3s ease-in-out infinite;
+  }
+  .cat-tail{transform-origin:26px 38px;animation:tailWag 0.6s ease-in-out infinite}
+  .runner-shadow-el{animation:shadowScale 0.3s ease-in-out infinite;transform-origin:40px 66px}
+
+  /* 地面光点 */
+  .run-trail{position:absolute;bottom:8px;display:flex;gap:8px}
+  .rt{
+    font-size:8px;color:#c9a348;
+    animation:trailFade 1.2s calc(var(--i)*0.2s) ease-out infinite;
+    opacity:0;
+  }
+
+  /* 进度条 */
+  .load-progress{
+    margin-top:24px;display:flex;align-items:center;gap:12px;
+  }
+  .load-bar-track{
+    width:140px;height:3px;border-radius:2px;
+    background:rgba(201,163,72,0.15);overflow:hidden;
+  }
+  .load-bar-fill{
+    height:100%;border-radius:2px;
+    background:linear-gradient(90deg,#c9a348,#e0c870);
+    width:0%;transition:width 0.3s ease;
+  }
+  .load-pct{
+    font-size:14px;font-weight:600;color:#c9a348;
+    min-width:36px;text-align:right;
+  }
+  .loading-sub{
+    margin-top:12px;font-size:12px;
+    color:rgba(245,238,220,0.45);letter-spacing:0.18em;
+    animation:loadingPulse 2s ease-in-out infinite;
+  }
+
+  html{scroll-behavior:smooth;overflow:hidden}
+
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+    color:var(--text-primary);
+    overflow:hidden;min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(ellipse 65% 50% at 30% 20%, #1e1840 0%, transparent 60%),
+      radial-gradient(ellipse 55% 55% at 75% 30%, #231545 0%, transparent 55%),
+      radial-gradient(ellipse 50% 60% at 60% 70%, #1a1235 0%, transparent 50%),
+      linear-gradient(175deg, #0d0a22 0%, #151030 30%, #1a1238 60%, #0f0d25 100%);
+    background-attachment:fixed;
+  }
+
+  /* 油画纹理 */
+  .canvas-texture{
+    position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.25;
+    background-image:url("data:image/svg+xml,%3Csvg width='300' height='300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    background-size:250px 250px;
+  }
+
+  /* 动态笔触 Canvas */
+  #brushCanvas{
+    position:fixed;inset:0;z-index:0;pointer-events:none;
+  }
+
+  /* 3D 画布 */
+  #three-canvas{
+    position:fixed;inset:0;z-index:0;display:block;pointer-events:none;
+  }
+
+  /* 交互层 */
+  #three-interact{
+    position:fixed;inset:0;z-index:1;
+    cursor:grab;
+  }
+  .timeline-area{display:none}
+  .scroll-cue{display:none}
+  #three-interact:active{cursor:grabbing}
+
+  /* 主体 */
+  .main-overlay{
+    position:relative;z-index:10;pointer-events:none;
+    container-type:inline-size;min-height:100vh;
+  }
+  .main-overlay a,.main-overlay button{pointer-events:auto}
+
+  .frame-top{
+    position:fixed;top:0;left:0;right:0;z-index:30;
+    padding:clamp(16px,4cqw,60px);padding-bottom:0;pointer-events:none;
+  }
+  .frame-top-inner{
+    display:flex;align-items:flex-end;justify-content:space-between;
+    gap:20px;height:22px;padding-bottom:6px;
+  }
+  .frame-top-inner span{
+    color:var(--gold-dim);font-size:clamp(8px,0.9cqw,10px);
+    letter-spacing:0.32em;text-transform:uppercase;
+    white-space:pre-line;line-height:1.7;font-weight:500;
+  }
+  .frame-line-h{
+    position:relative;margin:0 clamp(16px,4cqw,60px);
+    border-top:1px solid var(--gold-line);
+  }
+  .frame-bottom-line{
+    position:fixed;
+    bottom:calc(22px + clamp(16px,4cqw,60px));
+    left:clamp(16px,4cqw,60px);right:clamp(16px,4cqw,60px);
+    border-top:1px solid var(--gold-line);z-index:30;pointer-events:none;
+  }
+  .frame-bottom{
+    position:fixed;bottom:0;left:0;right:0;z-index:30;
+    padding:clamp(16px,4cqw,60px);padding-top:0;pointer-events:none;
+  }
+  .frame-bottom-inner{
+    display:flex;align-items:flex-start;height:22px;padding-top:6px;
+  }
+  .frame-bottom-inner span{
+    color:var(--gold-dim);font-size:clamp(8px,0.9cqw,10px);
+    letter-spacing:0.32em;text-transform:uppercase;
+    white-space:pre-line;line-height:1.7;font-weight:500;
+  }
+  .frame-side{
+    position:fixed;top:50%;
+    right:calc(-4px + clamp(16px,4cqw,60px));
+    transform:translateY(-50%);writing-mode:vertical-rl;
+    color:var(--gold-dim);font-size:clamp(8px,0.9cqw,10px);
+    letter-spacing:0.38em;text-transform:uppercase;
+    white-space:pre-line;line-height:1.7;z-index:30;pointer-events:none;
+    font-weight:500;
+  }
+
+  .hero-section{
+    min-height:100vh;display:flex;flex-direction:column;
+    justify-content:center;
+    padding:clamp(16px,4cqw,60px);
+    padding-top:calc(22px + clamp(16px,4cqw,60px));
+    padding-bottom:0;margin-bottom:-12vh;
+  }
+  .hero-content{
+    max-width:min(900px,78cqw);display:flex;
+    flex-direction:column;align-items:flex-start;
+  }
+  .hero-badge{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:5px 14px;border-radius:20px;
+    border:1px solid var(--gold-line);
+    background:rgba(30,24,60,0.4);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    margin-bottom:clamp(14px,2cqw,24px);
+  }
+  .hero-badge-dot{
+    width:6px;height:6px;border-radius:50%;background:var(--rose);
+    box-shadow:0 0 8px var(--rose-dim);
+  }
+  .hero-badge-text{
+    font-size:clamp(10px,1.1cqw,12px);
+    color:var(--rose-dim);letter-spacing:0.15em;font-weight:500;
+  }
+  .hero-title{
+    font-size:clamp(44px,9.5cqw,140px);
+    line-height:0.88;letter-spacing:-0.03em;
+    color:var(--text-primary);font-weight:700;
+    text-shadow:0 2px 30px rgba(10,5,30,0.6);
+  }
+  .hero-desc{
+    margin-top:clamp(14px,2cqw,28px);
+    max-width:min(420px,78cqw);
+  }
+  .hero-desc p{
+    font-size:clamp(12px,1.3cqw,15px);
+    line-height:1.65;color:var(--text-secondary);font-weight:400;
+  }
+  .social-links{
+    display:flex;flex-wrap:wrap;gap:8px;
+    justify-content:flex-start;margin-top:clamp(16px,2.4cqw,28px);
+  }
+  .social-btn{
+    display:flex;align-items:center;justify-content:center;
+    width:34px;height:34px;border-radius:50%;
+    border:1px solid var(--btn-border);
+    color:rgba(245,238,220,0.7);
+    transition:all 0.25s ease;cursor:pointer;text-decoration:none;
+    background:var(--btn-bg);
+    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  }
+  .social-btn:hover{
+    transform:translateY(-3px);
+    border-color:var(--gold-dim);
+    color:var(--gold);
+    background:rgba(30,24,60,0.7);
+    box-shadow:0 4px 18px rgba(201,163,72,0.12);
+  }
+  .social-btn svg{width:16px;height:16px}
+
+  .scroll-cue{
+    margin-top:clamp(22px,3.2cqw,44px);
+    display:flex;align-items:center;gap:10px;
+  }
+  .scroll-mouse{
+    position:relative;width:13px;height:22px;border-radius:8px;
+    border:1.5px solid var(--text-muted);display:block;
+    background:rgba(0,0,0,0.1);
+  }
+  .scroll-mouse::after{
+    content:'';position:absolute;top:4px;left:50%;
+    transform:translateX(-50%);width:2px;height:5px;border-radius:50%;
+    background:var(--text-primary);
+    animation:scrollMouse 2s ease-in-out infinite;
+  }
+  .scroll-text{
+    font-size:10px;text-transform:uppercase;
+    color:var(--text-muted);letter-spacing:0.36em;font-weight:500;
+  }
+
+  /* 时间线 */
+  .timeline-area{
+    margin-left:auto;margin-right:clamp(16px,5cqw,60px);
+    width:min(400px,80cqw);
+    padding-top:35vh;
+    padding-bottom:calc(22px + clamp(16px,4cqw,60px) + 120px);
+    position:relative;
+  }
+  .timeline-wrapper{position:relative;padding-left:8px}
+  .timeline-line{
+    position:absolute;left:12px;top:0;width:1px;height:100%;
+    background:linear-gradient(
+      rgba(201,163,72,0.3),
+      rgba(201,163,72,0.1) 60%,
+      rgba(201,163,72,0.02)
+    );
+  }
+  .timeline-card{
+    position:relative;margin-bottom:36px;padding:20px 22px;
+    border-radius:14px;
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    opacity:0;transform:translateY(30px);
+    transition:all 0.6s cubic-bezier(0.22,1,0.36,1);
+    pointer-events:auto;
+  }
+  .timeline-card.visible{opacity:1;transform:translateY(0)}
+  .timeline-card:hover{
+    border-color:var(--card-hover);
+    background:rgba(30,22,52,0.8);
+    box-shadow:0 4px 24px rgba(201,163,72,0.06);
+    transform:translateY(-2px);
+  }
+  .timeline-card.visible:hover{transform:translateY(-2px)}
+  .timeline-dot{
+    position:absolute;left:-30px;top:28px;
+    width:10px;height:10px;border-radius:50%;
+    background:var(--dot);
+    box-shadow:0 0 0 5px var(--dot-glow);
+    z-index:2;
+  }
+  .timeline-card.visible .timeline-dot{
+    animation:dotPulse 0.8s ease-out;
+  }
+  @keyframes dotPulse{
+    0%{box-shadow:0 0 0 1px var(--dot-glow)}
+    50%{box-shadow:0 0 0 10px rgba(232,184,120,0.08)}
+    100%{box-shadow:0 0 0 5px var(--dot-glow)}
+  }
+  .timeline-label{
+    font-size:10px;font-weight:600;letter-spacing:0.22em;
+    color:var(--gold-dim);text-transform:uppercase;margin-bottom:6px;
+  }
+  .timeline-title{
+    font-size:clamp(16px,2cqw,22px);font-weight:650;
+    color:var(--text-primary);line-height:1.3;margin-bottom:6px;
+  }
+  .timeline-sub{
+    font-size:13px;color:var(--rose-dim);margin-bottom:10px;font-weight:500;
+  }
+  .timeline-body{
+    font-size:13px;line-height:1.7;color:var(--text-secondary);font-weight:400;
+  }
+
+  .footer-note{
+    position:fixed;right:12px;bottom:12px;z-index:30;
+    display:flex;align-items:center;gap:6px;border-radius:20px;
+    border:1px solid var(--gold-line);
+    background:rgba(15,10,30,0.5);padding:5px 12px;
+    font-size:11px;font-weight:500;color:var(--text-muted);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    pointer-events:none;letter-spacing:0.05em;
+  }
+  .footer-note-dot{width:5px;height:5px;border-radius:50%;background:var(--rose)}
+
+  .rotate-hint{
+    position:fixed;
+    bottom:calc(22px + clamp(16px,4cqw,60px) + 24px);
+    right:clamp(16px,4cqw,60px);z-index:25;
+    display:flex;align-items:center;gap:8px;
+    color:var(--text-muted);font-size:10px;
+    letter-spacing:0.14em;pointer-events:none;
+    transition:opacity 1s ease;font-weight:500;
+  }
+  .rotate-hint svg{width:14px;height:14px;opacity:0.5}
+
+  @media(max-width:768px){
+    #three-interact{
+      inset:0;
+    }
+    .hero-section{
+      min-height:58vh;
+      padding-top:calc(22px + clamp(16px,4cqw,60px) + 56vh);
+      margin-bottom:0;
+    }
+    .timeline-area{
+      width:min(360px,88cqw);
+      padding-top:10vh;
+      margin-top:0;
+    }
+    .hero-title{font-size:clamp(36px,11cqw,64px)}
+    .hero-content{max-width:85cqw}
+  }
+  @media(max-width:480px){
+    #three-interact{
+      inset:0;
+    }
+    .hero-section{
+      min-height:52vh;
+      padding-top:calc(22px + clamp(16px,4cqw,60px) + 52vh);
+    }
+    .timeline-area{width:90cqw;margin-right:3cqw;padding-top:6vh}
+    .hero-title{font-size:clamp(34px,12cqw,52px)}
+    .hero-content{max-width:85cqw}
+    .frame-side{display:none}
+    .rotate-hint{display:none}
+  }
+
+  /* 表白弹层 */
+  .confess{position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .35s;}
+  .confess.open{opacity:1;pointer-events:auto;}
+  .confess-mask{position:absolute;inset:0;background:rgba(18,16,40,.55);backdrop-filter:blur(6px);}
+  .confess-card{position:relative;max-width:460px;width:86vw;max-height:82vh;overflow:auto;padding:30px 26px 34px;border-radius:22px;
+    background:linear-gradient(160deg,rgba(40,36,72,.96),rgba(26,24,52,.96));
+    border:1px solid rgba(255,210,150,.3);box-shadow:0 24px 70px rgba(0,0,0,.55);text-align:center;
+    transform:translateY(18px) scale(.95);transition:transform .35s cubic-bezier(.2,.8,.3,1.1);}
+  .confess.open .confess-card{transform:translateY(0) scale(1);}
+  .confess-icon{width:78px;height:78px;object-fit:contain;margin-bottom:14px;}
+  .confess-text{font-size:15px;line-height:1.95;color:#f0ece4;text-align:left;white-space:pre-line;margin-bottom:26px;}
+  .confess-actions{display:flex;align-items:center;justify-content:center;gap:18px;min-height:64px;flex-wrap:nowrap;}
+  .btn-yes{padding:13px 40px;border-radius:999px;border:none;cursor:pointer;font-size:17px;font-weight:800;letter-spacing:2px;
+    color:#3a2410;background:linear-gradient(135deg,#ffd98a,#ffb35c);box-shadow:0 8px 24px rgba(255,180,90,.4);
+    transition:transform .3s cubic-bezier(.2,.8,.3,1.2);transform-origin:center;white-space:nowrap;}
+  .btn-no{padding:11px 26px;border-radius:999px;cursor:pointer;font-size:14px;color:#c8c2d8;
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.2);
+    transition:transform .3s,opacity .3s;transform-origin:center;white-space:nowrap;}
+  .confess-result{font-size:26px;font-weight:800;letter-spacing:4px;color:#ffd98a;
+    opacity:0;transform:scale(.7);transition:opacity .5s,transform .5s cubic-bezier(.2,.8,.3,1.3);}
+  .confess-result.show{opacity:1;transform:scale(1);}
+
+  /* 轻提示 */
+  .toast{position:fixed;left:50%;bottom:9vh;transform:translate(-50%,14px);z-index:80;
+    padding:11px 22px;border-radius:999px;background:rgba(28,26,48,.92);color:#ffe0b0;font-size:14px;
+    border:1px solid rgba(255,210,150,.3);box-shadow:0 10px 30px rgba(0,0,0,.4);
+    opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;white-space:nowrap;}
+  .toast.show{opacity:1;transform:translate(-50%,0);}
+
+  /* 表白成功暖光 */
+  .warm-flash{position:fixed;inset:0;z-index:85;pointer-events:none;opacity:0;
+    background:radial-gradient(ellipse at 50% 50%, rgba(255,214,150,.7), rgba(255,160,120,.32) 45%, transparent 75%);}
+  .warm-flash.on{animation:warmFlash 1.8s ease-out;}
+  @keyframes warmFlash{0%{opacity:0}14%{opacity:.72}100%{opacity:0}}
+
+  /* 拒绝变暗（聚光式，从边缘向中心收） */
+  .dark-veil{position:fixed;inset:0;z-index:82;pointer-events:none;opacity:0;transition:opacity .6s ease;
+    --r:100%;
+    background:radial-gradient(circle at 50% 56%, transparent var(--r), rgba(4,2,12,.97) calc(var(--r) + 8%));}
+  .dark-veil.on{opacity:1;}
+
+  /* 贴纸文字浮层 */
+  .sticker-note{position:fixed;inset:0;z-index:75;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
+  .sticker-note.open{opacity:1;pointer-events:auto;}
+  .sticker-note-mask{position:absolute;inset:0;background:rgba(18,16,40,.55);backdrop-filter:blur(6px);}
+  .sticker-note-card{position:relative;max-width:440px;width:84vw;max-height:80vh;overflow:auto;padding:30px 28px 28px;border-radius:20px;
+    background:linear-gradient(160deg,rgba(42,38,74,.96),rgba(26,24,52,.96));
+    border:1px solid rgba(255,210,150,.28);box-shadow:0 24px 70px rgba(0,0,0,.55);text-align:center;
+    transform:translateY(16px) scale(.96);transition:transform .3s cubic-bezier(.2,.8,.3,1.1);}
+  .sticker-note.open .sticker-note-card{transform:translateY(0) scale(1);}
+  .sticker-note-close{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:50%;cursor:pointer;
+    border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#e8e4dc;font-size:20px;line-height:1;
+    display:flex;align-items:center;justify-content:center;transition:.2s;}
+  .sticker-note-close:hover{background:rgba(255,255,255,.16);}
+  .sticker-note-icon{width:64px;height:64px;object-fit:contain;margin-bottom:12px;}
+  .sticker-note-title{font-size:19px;font-weight:700;color:#ffe0a8;margin-bottom:12px;letter-spacing:.5px;}
+  .sticker-note-body{font-size:15px;line-height:1.9;color:#eeebe3;white-space:pre-line;text-align:left;}
+</style>
+</head>
+<body>
+
+<!-- 加载动画 -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="run-scene">
+    <!-- SVG 奔跑的小猫 -->
+    <svg class="runner-svg" viewBox="0 0 80 70" width="72" height="63">
+      <!-- 影子 -->
+      <ellipse cx="40" cy="66" rx="12" ry="3" fill="rgba(0,0,0,0.1)" class="runner-shadow-el"/>
+      <!-- 尾巴 -->
+      <path d="M26 38 Q10 28 14 16 Q16 8 20 18" fill="none" stroke="#c8c0b8" stroke-width="4" stroke-linecap="round" class="cat-tail"/>
+      <!-- 身体 -->
+      <ellipse cx="40" cy="42" rx="16" ry="12" fill="#e0d8d0"/>
+      <!-- 肚皮 -->
+      <ellipse cx="40" cy="44" rx="10" ry="7" fill="#f5f0ec"/>
+      <!-- 头 -->
+      <circle cx="40" cy="24" r="14" fill="#e8e0d8"/>
+      <!-- 耳朵 -->
+      <polygon points="29,13 25,2 34,10" fill="#d8d0c8"/>
+      <polygon points="29,12 27,5 33,10" fill="#f0c8c0"/>
+      <polygon points="51,13 55,2 46,10" fill="#d8d0c8"/>
+      <polygon points="51,12 53,5 47,10" fill="#f0c8c0"/>
+      <!-- 前爪（藏在身体下方，只露小尖） -->
+      <ellipse cx="32" cy="52" rx="6" ry="3" fill="#d8d0c8"/>
+      <ellipse cx="48" cy="52" rx="6" ry="3" fill="#d8d0c8"/>
+      <!-- 眼睛 -->
+      <ellipse cx="34" cy="22" rx="3.5" ry="4.5" fill="#2a2a20"/>
+      <ellipse cx="46" cy="22" rx="3.5" ry="4.5" fill="#2a2a20"/>
+      <circle cx="35" cy="20" r="1.3" fill="#fff"/>
+      <circle cx="47" cy="20" r="1.3" fill="#fff"/>
+      <!-- 鼻子 -->
+      <ellipse cx="40" cy="27" rx="1.8" ry="1.3" fill="#e8a0a0"/>
+      <!-- 嘴 -->
+      <path d="M37 29 Q40 31 43 29" fill="none" stroke="#c0b0a0" stroke-width="0.7"/>
+      <!-- 胡子 -->
+      <line x1="22" y1="25" x2="28" y2="26" stroke="#d0c8c0" stroke-width="0.5"/>
+      <line x1="22" y1="28" x2="28" y2="28" stroke="#d0c8c0" stroke-width="0.5"/>
+      <line x1="52" y1="25" x2="58" y2="26" stroke="#d0c8c0" stroke-width="0.5"/>
+      <line x1="52" y1="28" x2="58" y2="28" stroke="#d0c8c0" stroke-width="0.5"/>
+    </svg>
+    <!-- 地面光点 -->
+    <div class="run-trail">
+      <span class="rt" style="--i:0">✦</span><span class="rt" style="--i:1">✦</span><span class="rt" style="--i:2">✦</span><span class="rt" style="--i:3">✦</span><span class="rt" style="--i:4">✦</span>
+    </div>
+  </div>
+  <!-- 进度条 -->
+  <div class="load-progress">
+    <div class="load-bar-track">
+      <div class="load-bar-fill" id="loadBarFill"></div>
+    </div>
+    <div class="load-pct" id="loadingPct">0%</div>
+  </div>
+  <div class="loading-sub">小猫正在奔向你…</div>
+</div>
+
+<!-- 油画纹理 -->
+<div class="canvas-texture"></div>
+
+<!-- 动态笔触 -->
+<canvas id="brushCanvas"></canvas>
+
+<!-- 3D -->
+<canvas id="three-canvas"></canvas>
+<div id="three-interact"></div>
+
+<!-- 3D 贴纸由 Three.js Sprite 渲染，不再使用 CSS 贴纸 -->
+
+<div class="rotate-hint" id="rotateHint">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+  <span>拖拽旋转 · 滚轮缩放</span>
+</div>
+
+<div class="main-overlay">
+
+  <div class="frame-top">
+    <div class="frame-top-inner">
+      <span id="frameTL"></span>
+      <span style="text-align:right;" id="frameTR"></span>
+    </div>
+    <div class="frame-line-h"></div>
+  </div>
+  <div class="frame-bottom-line"></div>
+  <div class="frame-bottom">
+    <div class="frame-bottom-inner"><span id="frameBL"></span></div>
+  </div>
+  <div class="frame-side" id="frameSide"></div>
+
+  <section class="hero-section">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        <span class="hero-badge-text" id="heroBadge"></span>
+      </div>
+      <h1 class="hero-title" id="heroTitle"></h1>
+      <div class="hero-desc">
+        <p id="heroDesc"></p>
+      </div>
+      <div class="social-links" id="socialLinks">
+      </div>
+      <div class="scroll-cue">
+        <span class="scroll-mouse"></span><span class="scroll-text">下滑</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="timeline-area">
+    <div class="timeline-wrapper">
+      <div class="timeline-line" id="timelineLine"></div>
+
+      <div id="timelineContent"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer-note"><span class="footer-note-dot"></span><span id="footerText"></span></div>
+
+<!-- 贴纸文本浮层 -->
+<div class="sticker-note" id="stickerNote" aria-hidden="true">
+  <div class="sticker-note-mask" id="stickerNoteMask"></div>
+  <div class="sticker-note-card">
+    <button class="sticker-note-close" id="stickerNoteClose" aria-label="关闭">×</button>
+    <img class="sticker-note-icon" id="stickerNoteIcon" alt="">
+    <div class="sticker-note-title" id="stickerNoteTitle"></div>
+    <div class="sticker-note-body" id="stickerNoteBody"></div>
+  </div>
+</div>
+
+<!-- 表白弹层 -->
+<div class="confess" id="confess" aria-hidden="true">
+  <div class="confess-mask"></div>
+  <div class="confess-card">
+    <img class="confess-icon" id="confessIcon" src="./stickers/in-love.webp" alt="">
+    <div class="confess-text" id="confessText"></div>
+    <div class="confess-actions" id="confessActions">
+      <button class="btn-yes" id="btnYes">愿意</button>
+      <button class="btn-no" id="btnNo">再想想</button>
+    </div>
+    <div class="confess-result" id="confessResult"></div>
+  </div>
+</div>
+
+<!-- 轻提示 -->
+<div class="toast" id="toast"></div>
+
+<!-- 表白成功暖光 -->
+<div class="warm-flash" id="warmFlash"></div>
+
+<!-- 拒绝变暗 -->
+<div class="dark-veil" id="darkVeil"></div>
+
+<!-- 从 config.json 加载文字 -->
+<script>
+(async function() {
+  try {
+    const resp = await fetch('./config.json');
+    const cfg = await resp.json();
+
+    // 框架文字
+    document.getElementById('frameTL').innerHTML = cfg.frameTopLeft.replace(/\n/g,'<br>');
+    document.getElementById('frameTR').textContent = cfg.frameTopRight;
+    document.getElementById('frameBL').textContent = cfg.frameBottom;
+    document.getElementById('frameSide').textContent = cfg.frameSide;
+    document.getElementById('footerText').textContent = cfg.footer;
+
+    // Hero
+    document.getElementById('heroBadge').textContent = cfg.badge;
+    document.getElementById('heroTitle').textContent = cfg.title;
+    document.getElementById('heroDesc').textContent = cfg.description;
+    document.title = cfg.title + ' · 个人主页';
+
+    // 社交按钮
+    const iconSVGs = {
+      facebook: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>',
+      email: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>',
+      phone: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/></svg>'
+    };
+    const socialDiv = document.getElementById('socialLinks');
+    (cfg.social||[]).forEach(s => {
+      const a = document.createElement('a');
+      a.href = s.url; a.target = '_blank'; a.rel = 'noopener';
+      a.className = 'social-btn'; a.setAttribute('aria-label', s.label);
+      a.innerHTML = iconSVGs[s.icon] || '';
+      socialDiv.appendChild(a);
+    });
+
+    // 时间线
+    const tc = document.getElementById('timelineContent');
+    (cfg.timeline||[]).forEach((item,i) => {
+      const card = document.createElement('div');
+      card.className = 'timeline-card';
+      card.dataset.delay = i * 80;
+      let html = '<div class="timeline-dot"></div>';
+      html += '<div class="timeline-label">' + item.label + '</div>';
+      html += '<div class="timeline-title">' + item.title + '</div>';
+      if (item.sub) html += '<div class="timeline-sub">' + item.sub + '</div>';
+      html += '<div class="timeline-body">' + item.body + '</div>';
+      card.innerHTML = html;
+      tc.appendChild(card);
+    });
+
+    // 重新初始化滚动动画（因为时间线卡片是新创建的）
+    initTimelineScroll();
+
+    // === 贴纸交互：看过才解锁表白 ===
+    window.cwhCfg = cfg;
+    const LOVE_KEY = 'in-love';
+    const REQUIRED = ['enfj','pisces','designer','gaming','crafts','orange-cat','night-owl','foodie','cake','boba'];
+    const seen = new Set();
+    let loveUnlocked = false;
+
+    const el = id => document.getElementById(id);
+    let toastTimer = null;
+    function toast(msg) {
+      const t = el('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    function openNote(key) {
+      const data = (cfg.stickers || {})[key] || {};
+      el('stickerNoteIcon').src = './stickers/' + key + '.webp';
+      el('stickerNoteTitle').textContent = data.title || '';
+      el('stickerNoteBody').textContent = data.text || '';
+      el('stickerNote').classList.add('open');
+      if (key !== LOVE_KEY) {
+        seen.add(key);
+        checkUnlock();
+      }
+    }
+
+    function checkUnlock() {
+      if (loveUnlocked) return;
+      if (REQUIRED.every(k => seen.has(k))) {
+        loveUnlocked = true;
+        if (window.loveSprite) window.loveSprite.visible = true;
+        toast('最后一张贴纸亮起来了');
+      }
+    }
+
+    window.onStickerClick = function(key) {
+      if (key === LOVE_KEY) {
+        if (!loveUnlocked) {
+          const left = REQUIRED.filter(k => !seen.has(k)).length;
+          toast('还有 ' + left + ' 张没看哦，慢慢点');
+          return;
+        }
+        openConfess();
+        return;
+      }
+      openNote(key);
+    };
+
+    // 表白弹层
+    let noCount = 0;
+    function openConfess() {
+      noCount = 0;
+      const c = cfg.confess || {};
+      el('confessText').textContent = (cfg.stickers[LOVE_KEY] || {}).text || '';
+      el('btnYes').textContent = c.yes || '愿意';
+      el('btnNo').textContent = c.no || '再想想';
+      el('btnYes').style.transform = 'scale(1)';
+      el('btnNo').style.transform = 'scale(1)';
+      el('btnNo').style.opacity = '1';
+      el('btnNo').style.display = '';
+      el('confessActions').style.display = '';
+      el('confessResult').classList.remove('show');
+      el('confessResult').textContent = '';
+      const dv0 = el('darkVeil'); if (dv0) { dv0.classList.remove('on'); dv0.style.removeProperty('--r'); }
+      el('confess').classList.add('open');
+    }
+
+    el('btnNo').addEventListener('click', () => {
+      const c = cfg.confess || {};
+      noCount++;
+      el('btnYes').style.transform = 'scale(' + (1 + noCount * 0.5) + ')';
+      const ns = Math.max(1 - noCount * 0.34, 0);
+      el('btnNo').style.transform = 'scale(' + ns + ')';
+      el('btnNo').style.opacity = String(Math.max(1 - noCount * 0.4, 0));
+      const stages = c.noStages || [];
+      if (stages.length) el('btnNo').textContent = stages[Math.min(noCount, stages.length - 1)];
+      if (ns <= 0.05) el('btnNo').style.display = 'none';
+      const dv = el('darkVeil');
+      if (dv) { dv.classList.add('on'); const steps=[66,34,12]; dv.style.setProperty('--r', steps[Math.min(noCount-1, steps.length-1)] + '%'); }
+    });
+
+    el('btnYes').addEventListener('click', () => {
+      const c = cfg.confess || {};
+      el('confessActions').style.display = 'none';
+      const r = el('confessResult');
+      r.textContent = c.result || '不许反悔';
+      r.classList.add('show');
+      const dv = el('darkVeil'); if (dv) dv.classList.remove('on');
+      const wf = el('warmFlash');
+      if (wf) { wf.classList.remove('on'); void wf.offsetWidth; wf.classList.add('on'); }
+    });
+
+    const closeNote = () => el('stickerNote').classList.remove('open');
+    el('stickerNoteClose').addEventListener('click', closeNote);
+    el('stickerNoteMask').addEventListener('click', closeNote);
+
+  } catch(e) {
+    console.error('config.json 加载失败:', e);
+  }
+})();
+</script>
+
+<!-- Three.js -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.170.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.170.0/examples/jsm/",
+    "three/examples/jsm/libs/meshopt_decoder.module.js": "https://unpkg.com/three@0.170.0/examples/jsm/libs/meshopt_decoder.module.js"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
+
+const canvas = document.getElementById('three-canvas');
+const rotateHint = document.getElementById('rotateHint');
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true;
+
+const scene = new THREE.Scene();
+scene.background = null;
+
+const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(0.35, 0.6, 5.5);
+
+const ambientLight = new THREE.AmbientLight('#fff5e8', 1.8);
+scene.add(ambientLight);
+
+const keyLight = new THREE.DirectionalLight('#fffbee', 4.5);
+keyLight.position.set(2.5, 3.5, 3.5);
+keyLight.castShadow = true;
+keyLight.shadow.mapSize.width = 1024;
+keyLight.shadow.mapSize.height = 1024;
+scene.add(keyLight);
+
+const fillLight = new THREE.DirectionalLight('#ffe0c0', 2.2);
+fillLight.position.set(-1.5, 0.5, -0.5);
+scene.add(fillLight);
+
+const rimLight = new THREE.DirectionalLight('#fff0e0', 3.0);
+rimLight.position.set(0, 1.8, -2.5);
+scene.add(rimLight);
+
+const accentLight = new THREE.DirectionalLight('#c9a348', 0.5);
+accentLight.position.set(3, 0.8, -1);
+scene.add(accentLight);
+
+const pmremGenerator = new THREE.PMREMGenerator(renderer);
+scene.environment = pmremGenerator.fromScene(
+  new THREE.Scene().add(new THREE.AmbientLight('#ffffff', 0.4))
+).texture;
+
+const interactDiv = document.getElementById('three-interact');
+const controls = new OrbitControls(camera, interactDiv);
+controls.target.set(0.15, 0.3, 0);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.minDistance = 1.0;
+controls.maxDistance = 5.5;
+controls.maxPolarAngle = Math.PI * 0.72;
+controls.minPolarAngle = 0.25;
+controls.enableZoom = true;
+controls.zoomSpeed = 0.7;
+controls.autoRotate = false;
+controls.autoRotateSpeed = 0.45;
+controls.update();
+
+const loader = new GLTFLoader();
+loader.setMeshoptDecoder(MeshoptDecoder);
+
+loader.load(
+  './cwh-model.glb',
+  (gltf) => {
+    const model = gltf.scene;
+    const box = new THREE.Box3().setFromObject(model);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+    model.position.set(-center.x, -center.y, -center.z);
+    const maxDim = Math.max(size.x, size.y, size.z);
+    model.scale.setScalar(2.5 / maxDim);
+    scene.add(model);
+    controls.target.set(0.15, size.y * model.scale.x * 0.2, 0);
+    controls.update();
+
+    // === 3D 贴纸环绕人物 ===
+    const textureLoader = new THREE.TextureLoader();
+    // cwh 贴纸：环绕人物散开（极坐标）
+    const stickerDefs = [
+      { key:'enfj',       file:'enfj.webp',       angle:-0.35, elev: 0.55, r:1.30, s:0.22 },
+      { key:'pisces',     file:'pisces.webp',     angle: 0.25, elev: 0.15, r:1.40, s:0.20 },
+      { key:'designer',   file:'designer.webp',   angle: 0.85, elev: 0.55, r:1.25, s:0.21 },
+      { key:'gaming',     file:'gaming.webp',     angle: 1.45, elev:-0.15, r:1.35, s:0.21 },
+      { key:'crafts',     file:'crafts.webp',     angle: 2.05, elev: 0.45, r:1.25, s:0.20 },
+      { key:'orange-cat', file:'orange-cat.webp', angle: 2.65, elev: 0.05, r:1.40, s:0.22 },
+      { key:'night-owl',  file:'night-owl.webp',  angle: 3.25, elev: 0.55, r:1.30, s:0.21 },
+      { key:'foodie',     file:'foodie.webp',     angle: 3.85, elev:-0.20, r:1.35, s:0.21 },
+      { key:'cake',       file:'cake.webp',       angle: 4.45, elev: 0.35, r:1.25, s:0.20 },
+      { key:'boba',       file:'boba.webp',       angle: 5.05, elev:-0.30, r:1.35, s:0.19 },
+      { key:'in-love',    file:'in-love.webp',    angle: 5.65, elev: 0.60, r:1.45, s:0.24 },
+    ];
+    const stickerGroup = new THREE.Group();
+    stickerGroup.name = 'stickers';
+
+    stickerDefs.forEach(def => {
+      const tex = textureLoader.load('./stickers/' + def.file);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      const mat = new THREE.SpriteMaterial({ map:tex, transparent:true, depthTest:true, depthWrite:false });
+      const sprite = new THREE.Sprite(mat);
+      const R = 1.35;
+      const sx = Math.cos(def.angle) * Math.cos(def.elev) * def.r * R;
+      const sy = Math.sin(def.elev) * def.r * R + 0.15;
+      const sz = Math.sin(def.angle) * Math.cos(def.elev) * def.r * R;
+      sprite.position.set(sx, sy, sz);
+      const sc = def.s * 2.0;
+      sprite.scale.set(sc, sc, 1);
+      sprite.userData = { stickerKey: def.key, baseScale: sprite.scale.clone(), locked:false };
+      if (def.key === 'in-love') { sprite.visible = false; sprite.userData.locked = true; window.loveSprite = sprite; }
+      stickerGroup.add(sprite);
+    });
+    scene.add(stickerGroup);
+    scene.stickerSprites = stickerGroup;
+
+    // === 点击贴纸 → 显示对应文本 ===
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+    let downPos = null;
+    window.addEventListener('pointerdown', e => { downPos = { x:e.clientX, y:e.clientY }; });
+    window.addEventListener('pointerup', e => {
+      if (!downPos) return;
+      const dx = e.clientX - downPos.x, dy = e.clientY - downPos.y;
+      downPos = null;
+      if (dx*dx + dy*dy > 400) return; // 超过 20px 视为拖动，不算点击
+      pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
+      pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      raycaster.setFromCamera(pointer, camera);
+      const hits = raycaster.intersectObjects(stickerGroup.children, false);
+      if (hits.length) {
+        if (window.onStickerClick) window.onStickerClick(hits[0].object.userData.stickerKey);
+      }
+    });
+
+    // 隐藏加载动画
+    const ls = document.getElementById('loadingScreen');
+    if (ls) ls.classList.add('hidden');
+
+    setTimeout(() => { rotateHint.style.opacity = '0'; }, 7000);
+  },
+  (p) => {
+    if (p.total > 0) {
+      const pct = Math.min(Math.round(p.loaded / p.total * 100), 100);
+      const bar = document.getElementById('loadBarFill');
+      const pctEl = document.getElementById('loadingPct');
+      if (bar) bar.style.width = pct + '%';
+      if (pctEl) pctEl.textContent = pct + '%';
+    }
+  },
+  () => {
+    const pctEl = document.getElementById('loadingPct');
+    if (pctEl) pctEl.textContent = '⚠';
+  }
+);
+
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+interactDiv.addEventListener('pointerdown', () => {
+  rotateHint.style.opacity = '0';
+}, { once: true });
+
+// 阻止拖拽触发浏览器搜索
+interactDiv.addEventListener('dragstart', e => e.preventDefault());
+interactDiv.addEventListener('drop', e => e.preventDefault());
+document.addEventListener('dragover', e => { if (e.target === interactDiv || interactDiv.contains(e.target)) e.preventDefault(); });
+</script>
+
+<!-- ===== 梵高风格动态笔触 ===== -->
+<script>
+(function() {
+  const bc = document.getElementById('brushCanvas');
+  const ctx = bc.getContext('2d');
+  let w, h, t = 0;
+
+  // 漩涡/光晕笔触定义
+  const swirls = [
+    { x:0.30, y:0.22, r:0.14, c1:'#c9a348', c2:'#a07020', speed:0.15 },
+    { x:0.72, y:0.18, r:0.10, c1:'#d4a550', c2:'#8a5c18', speed:-0.12 },
+    { x:0.58, y:0.38, r:0.11, c1:'#b89038', c2:'#704818', speed:0.18 },
+    { x:0.85, y:0.42, r:0.07, c1:'#cca040', c2:'#906020', speed:-0.2 },
+    { x:0.15, y:0.52, r:0.08, c1:'#b89038', c2:'#805818', speed:0.1 },
+    { x:0.40, y:0.68, r:0.09, c1:'#d4a550', c2:'#805020', speed:-0.14 },
+    { x:0.78, y:0.72, r:0.12, c1:'#c99838', c2:'#684820', speed:0.16 },
+    { x:0.50, y:0.85, r:0.06, c1:'#b89048', c2:'#785828', speed:-0.22 },
+    { x:0.22, y:0.78, r:0.08, c1:'#c9a040', c2:'#886028', speed:0.11 },
+    { x:0.65, y:0.55, r:0.05, c1:'#e0b858', c2:'#987030', speed:-0.25 },
+  ];
+
+  // 星星光点
+  const stars = [];
+  for (let i=0;i<40;i++) {
+    stars.push({
+      x:Math.random(), y:Math.random()*0.85,
+      r:Math.random()*2+1,
+      pulse:Math.random()*Math.PI*2,
+      speed:Math.random()*0.015+0.005,
+      alpha:Math.random()*0.5+0.3
+    });
+  }
+
+  function resize() {
+    w = bc.width = window.innerWidth;
+    h = bc.height = window.innerHeight;
+  }
+
+  function drawSwirl(t) {
+    ctx.save();
+    swirls.forEach(s => {
+      const cx = s.x * w, cy = s.y * h;
+      const baseR = s.r * Math.min(w, h);
+      const angle = t * s.speed;
+
+      // 漩涡主体：多个偏移的椭圆叠加
+      for (let i=0;i<5;i++) {
+        const offX = Math.cos(angle + i*1.2) * baseR * 0.4;
+        const offY = Math.sin(angle + i*1.2) * baseR * 0.35;
+        const rx = baseR * (0.5 + i*0.12);
+        const ry = baseR * (0.3 + i*0.08);
+        const alpha = 0.08 - i*0.012;
+
+        const grad = ctx.createRadialGradient(cx+offX, cy+offY, 0, cx+offX, cy+offY, rx);
+        grad.addColorStop(0, s.c1);
+        grad.addColorStop(0.35, s.c1);
+        grad.addColorStop(0.7, s.c2);
+        grad.addColorStop(1, 'transparent');
+
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.ellipse(cx+offX, cy+offY, rx, ry, angle*0.3, 0, Math.PI*2);
+        ctx.fill();
+      }
+
+      // 中心亮核
+      const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, baseR*0.25);
+      coreGrad.addColorStop(0, s.c1);
+      coreGrad.addColorStop(0.5, s.c1 + '88');
+      coreGrad.addColorStop(1, 'transparent');
+      ctx.globalAlpha = 0.12;
+      ctx.fillStyle = coreGrad;
+      ctx.beginPath();
+      ctx.arc(cx, cy, baseR*0.28, 0, Math.PI*2);
+      ctx.fill();
+    });
+    ctx.restore();
+  }
+
+  function drawStars() {
+    stars.forEach(s => {
+      s.pulse += s.speed;
+      const alpha = s.alpha * (0.4 + 0.6*Math.sin(s.pulse));
+      const sx = s.x * w, sy = s.y * h;
+
+      // 十字星辉
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      const grad = ctx.createRadialGradient(sx, sy, 0, sx, sy, s.r*3);
+      grad.addColorStop(0, '#fff8e0');
+      grad.addColorStop(0.15, '#ffe8b0');
+      grad.addColorStop(0.5, '#c9a34844');
+      grad.addColorStop(1, 'transparent');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(sx, sy, s.r*3, 0, Math.PI*2);
+      ctx.fill();
+
+      // 辉光线
+      if (alpha > 0.4) {
+        ctx.globalAlpha = alpha * 0.5;
+        ctx.strokeStyle = '#fff8e0';
+        ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        ctx.moveTo(sx-s.r*2, sy); ctx.lineTo(sx+s.r*2, sy);
+        ctx.moveTo(sx, sy-s.r*2); ctx.lineTo(sx, sy+s.r*2);
+        ctx.stroke();
+      }
+      ctx.restore();
+    });
+  }
+
+  function drawFrame() {
+    ctx.clearRect(0, 0, w, h);
+    ctx.globalCompositeOperation = 'lighter';
+    drawSwirl(t);
+    drawStars();
+    ctx.globalCompositeOperation = 'source-over';
+    t += 0.004;
+    requestAnimationFrame(drawFrame);
+  }
+
+  resize();
+  drawFrame();
+  window.addEventListener('resize', resize);
+})();
+</script>
+
+<!-- 时间线滚动（在 config.json 加载后调用） -->
+<script>
+let _timelineInitDone = false;
+function initTimelineScroll() {
+  if (_timelineInitDone) return;
+  _timelineInitDone = true;
+  const tl = document.getElementById('timelineLine');
+  function update() {
+    const sh = document.documentElement.scrollHeight;
+    const pct = Math.min(window.scrollY/(sh-window.innerHeight),1);
+    if(tl) tl.style.height=(pct*100)+'%';
+    document.querySelectorAll('.timeline-card').forEach(c=>{
+      const r=c.getBoundingClientRect();
+      if(r.top<window.innerHeight*0.85){
+        setTimeout(()=>c.classList.add('visible'),parseInt(c.dataset.delay)||0);
+      }
+    });
+  }
+  setTimeout(update,400);
+  window.addEventListener('scroll',update,{passive:true});
+}
+// 兜底：如果 config 加载慢，直接初始化
+setTimeout(() => { if (!_timelineInitDone) initTimelineScroll(); }, 2000);
+</script>
+</body>
+</html>
