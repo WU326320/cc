@@ -623,7 +623,7 @@
 <div class="confess" id="confess" aria-hidden="true">
   <div class="confess-mask"></div>
   <div class="confess-card">
-    <img class="confess-icon" id="confessIcon" src="./stickers/in-love.webp" alt="">
+    <img class="confess-icon" id="confessIcon" src="./in-love.webp" alt="">
     <div class="confess-text" id="confessText"></div>
     <div class="confess-actions" id="confessActions">
       <button class="btn-yes" id="btnYes">愿意</button>
@@ -714,7 +714,7 @@
 
     function openNote(key) {
       const data = (cfg.stickers || {})[key] || {};
-      el('stickerNoteIcon').src = './stickers/' + key + '.webp';
+      el('stickerNoteIcon').src = './' + key + '.webp';
       el('stickerNoteTitle').textContent = data.title || '';
       el('stickerNoteBody').textContent = data.text || '';
       el('stickerNote').classList.add('open');
@@ -912,7 +912,7 @@ loader.load(
     stickerGroup.name = 'stickers';
 
     stickerDefs.forEach(def => {
-      const tex = textureLoader.load('./stickers/' + def.file);
+      const tex = textureLoader.load('./' + def.file);
       tex.colorSpace = THREE.SRGBColorSpace;
       const mat = new THREE.SpriteMaterial({ map:tex, transparent:true, depthTest:true, depthWrite:false });
       const sprite = new THREE.Sprite(mat);
